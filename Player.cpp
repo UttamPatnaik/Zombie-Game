@@ -1,95 +1,149 @@
-#include <iostream>
-#include <sstream>
+#include<cmath>
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-
-using namespace std;
 using namespace sf;
-
 class Player
 {
-	private:
-		const float START_SPEED=200;
-		const float START_HEALTH=100;
-		
-		Vector2f m_Position;
-		
-		Sprite m_Sprite;
-		Texture m_Texture;
-		
-		Vector2f m_Resolution;
-		
-		IntRect m_Arena;
-		
-		int m_TileSize;
-		
-		bool m_UpPressed;
-		bool m_DownPressed;
-		bool m_LeftPressed;
-		bool m_RightPressed;
-		
-		int m_Health;
-		int m_MaxHealth;
-		
-		Time m_LastHit;
-		
-		float m_Speed;
-	public:
-		Player();
-		void spawn(IntRect m_Arena,Vector2f m_Resolution,int m_TileSize);
-		bool hit(Time timeHit);
-		Time getLastHitTime();
-		FloatRect getPosition();
-		Vector2f getCenter();
-		Sprite getSprite();
-		int getHealth();
-		
-		void moveLeft();
-		void moveRight();
-		void moveUp();
-		void moveDown();
-		
-		void stopLeft();
-		void stopRight();
-		void stopUp();
-		void stopDown();
-		
-		void update(float elaspedTime, Vector2i mousePosition);
-		
-		void upgradeSpeed();
-		
-		void upgradeHealth();
-		
-		void increaseHealthLevel(int amount);
-		void resetPlayerStats();
+private:
+	const float START_SPEED = 200;
+	const float START_HEALTH = 100;
+
+	// Where is the player
+	Vector2f m_Position;
+
+	// Of course we will need a sprite
+	Sprite m_Sprite;
+
+	// And a texture
+	// !!Watch this space!!
+	Texture m_Texture;
+
+	// What is the screen resolution
+	Vector2f m_Resolution;
+
+	// What size is the current arena
+	IntRect m_Arena;
+
+	// How big is each tile of the arena
+	int m_TileSize;
+
+	// Which directions is the player currently moving in
+	bool m_UpPressed;
+	bool m_DownPressed;
+	bool m_LeftPressed;
+	bool m_RightPressed;
+
+	// How much health has the player got?
+	int m_Health;
+	// What is the maximum health the player can have
+	int m_MaxHealth;
+
+	// When was the player last hit
+	Time m_LastHit;
+
+	// Speed in pixels per second
+	float m_Speed;
+
+
+	// All our public functions will come next
+public:
+
+	Player();
+
+	void spawn(IntRect arena, Vector2f resolution, int tileSize);
+
+	// Handle the player getting hit by a zombie
+	bool hit(Time timeHit);
+
+	// How long ago was the player last hit
+	Time getLastHitTime();
+
+	// Where is the player
+	FloatRect getPosition();
+
+	// Where is the center of the player
+	Vector2f getCenter();
+
+	// Which angle is the player facing
+	float getRotation();
+
+	// Send a copy of the sprite to main
+	Sprite getSprite();
+
+	// How much health has the player currently got?
+	int getHealth();
+
+	// The next four functions move the player
+	void moveLeft();
+
+	void moveRight();
+
+	void moveUp();
+
+	void moveDown();
+
+	// Stop the player moving in a specific direction
+	void stopLeft();
+
+	void stopRight();
+
+	void stopUp();
+
+	void stopDown();
+
+	// We will call this function once every frame
+	void update(float elapsedTime, Vector2i mousePosition);
+
+	// Give player a speed boost
+	void upgradeSpeed();
+
+	// Give the player some health
+	void upgradeHealth();
+
+	// Increase the maximum amount of health the player can have
+	void increaseHealthLevel(int amount);
+	void resetPlayerStats();
+
+
 };
+
+
 
 Player::Player()
 {
-	m_Speed=START_SPEED;
-	m_Health=START_HEALTH;
-	m_MaxHealth=START_HEALTH;
-	
+	m_Speed = START_SPEED;
+	m_Health = START_HEALTH;
+	m_MaxHealth = START_HEALTH;
+
+	// Associate a texture with the sprite
+	// !!Watch this space!!
 	m_Texture.loadFromFile("graphics/player.png");
 	m_Sprite.setTexture(m_Texture);
-	
-	m_Sprite.setOrigin(25,25);
+
+	// Set the origin of the sprite to the centre, 
+	// for smooth rotation
+	m_Sprite.setOrigin(25, 25);
+	//m_Sprite.setPosition(1920/2.0f, 1080/2.0f);
 }
 
-void Player::spawn(IntRect m_Arena,Vector2f m_Resolution,int m_TileSize)
+void Player::spawn(IntRect arena, Vector2f resolution, int tileSize)
 {
-	m_Position.x=arena.width/2;
-	m_Position.y=arena.height/2;
-	
-	m_Arena.left=arena.left;
-	m_Arena.width=arena.width;
-	m_Arena.top=arena.top;
-	m_Arena.height=arena.height;
-	
-	m_TileSize=tilesize;
-	
-	m_Resolution.x=resolution.x;
-	m_Resolution.y=resolution.y;
+	// Place the player in the middle of the arena
+	m_Position.x = arena.width / 2;
+	m_Position.y = arena.height / 2;
+
+	// Copy the details of the arena to the player's m_Arena
+	m_Arena.left = arena.left;
+	m_Arena.width = arena.width;
+	m_Arena.top = arena.top;
+	m_Arena.height = arena.height;
+
+	// Remember how big the tiles are in this arena
+	m_TileSize = tileSize;
+
+	// Strore the resolution for future use
+	m_Resolution.x = resolution.x;
+	m_Resolution.y = resolution.y;
+
 }
 
 Time Player::getLastHitTime()
@@ -97,18 +151,19 @@ Time Player::getLastHitTime()
 	return m_LastHit;
 }
 
-bool Player::hit(Time timehit)
+bool Player::hit(Time timeHit)
 {
-	if(timeHit.asMilliseconds()-m_LastHit.asMilliseconds()>200)
+	if (timeHit.asMilliseconds() - m_LastHit.asMilliseconds() > 200)// 2 tenths of second
 	{
-		m_LastHit=timehit;
-		m_Health-=1;
+		m_LastHit = timeHit;
+		m_Health -= 1;
 		return true;
 	}
 	else
 	{
 		return false;
 	}
+
 }
 
 FloatRect Player::getPosition()
@@ -121,14 +176,14 @@ Vector2f Player::getCenter()
 	return m_Position;
 }
 
-float Player::getPosition()
+float Player::getRotation()
 {
 	return m_Sprite.getRotation();
 }
 
 Sprite Player::getSprite()
 {
-	return m_Sprite;	
+	return m_Sprite;
 }
 
 int Player::getHealth()
@@ -138,83 +193,126 @@ int Player::getHealth()
 
 void Player::moveLeft()
 {
-	m_LeftPressed=true;
+	m_LeftPressed = true;
 }
 
 void Player::moveRight()
 {
-	m_RightPressed=true;
+	m_RightPressed = true;
 }
 
 void Player::moveUp()
 {
-	m_UpPressed=true;
+	m_UpPressed = true;
 }
 
 void Player::moveDown()
 {
-	m_DownPressed=true;
+	m_DownPressed = true;
 }
 
 void Player::stopLeft()
 {
-	m_LeftPressed=false;
+	m_LeftPressed = false;
 }
 
 void Player::stopRight()
 {
-	m_RightPressed=false;
+	m_RightPressed = false;
 }
 
 void Player::stopUp()
 {
-	m_UpPressed=false;
+	m_UpPressed = false;
 }
 
 void Player::stopDown()
 {
-	m_DownPressed=false;
+	m_DownPressed = false;
 }
 
 void Player::update(float elapsedTime, Vector2i mousePosition)
 {
-	if(m_UpPressed)
+
+	if (m_UpPressed)
 	{
-		m_Position.y-=m_Speed*elapsedTime;
+		m_Position.y -= m_Speed * elapsedTime;
 	}
-	if(m_DownPressed)
+
+	if (m_DownPressed)
 	{
-		m_Position.y+=m_Speed*elapsedTime;
+		m_Position.y += m_Speed * elapsedTime;
 	}
-	if(m_LeftPressed)
+
+	if (m_RightPressed)
 	{
-		m_Position.x-=m_Speed*elapsedTime;
+		m_Position.x += m_Speed * elapsedTime;
 	}
-	if(m_RightPressed)
+
+	if (m_LeftPressed)
 	{
-		m_Position.x+=m_Speed*elapsedTime;
+		m_Position.x -= m_Speed * elapsedTime;
 	}
+
 	m_Sprite.setPosition(m_Position);
-	
-	if(m_Position.x>m_Arena.width-m_TileSize)
+
+
+
+	// Keep the player in the arena
+	if (m_Position.x > m_Arena.width - m_TileSize)
 	{
-		m_Position.x=m_Arena.width-m_TileSize;
+		m_Position.x = m_Arena.width - m_TileSize;
 	}
-	
-	if(m_Position.x<m_Arena.width+m_TileSize)
+
+	if (m_Position.x < m_Arena.left + m_TileSize)
 	{
-		m_Position.x=m_Arena.left+m_TileSize;
+		m_Position.x = m_Arena.left + m_TileSize;
 	}
-	
-	if(m_Position.y>m_Arena.height-m_TileSize)
+
+	if (m_Position.y > m_Arena.height - m_TileSize)
 	{
-		m_Position.y=m_Arena.height-m_TileSize;
+		m_Position.y = m_Arena.height - m_TileSize;
 	}
-	
-	if(m_Position.y<m_Arena.height+m_TileSize)
+
+	if (m_Position.y < m_Arena.top + m_TileSize)
 	{
-		m_Position.y=m_Arena.top+m_TileSize;
+		m_Position.y = m_Arena.top + m_TileSize;
 	}
-	
-	float angle=(atan2(mousePosition))
+
+	// Calculate the angle the player is facing
+	float angle = (atan2(mousePosition.y - m_Resolution.y / 2,
+		mousePosition.x - m_Resolution.x / 2)
+		* 180) / 3.141;
+
+	m_Sprite.setRotation(angle);
+}
+
+void Player::upgradeSpeed()
+{
+	// 20% speed upgrade
+	m_Speed += (START_SPEED * .2);
+}
+
+void Player::upgradeHealth()
+{
+	// 20% max health upgrade
+	m_MaxHealth += (START_HEALTH * .2);
+
+}
+
+void Player::increaseHealthLevel(int amount)
+{
+	m_Health += amount;
+
+	// But not beyond the maximum
+	if (m_Health > m_MaxHealth)
+	{
+		m_Health = m_MaxHealth;
+	}
+}
+void Player::resetPlayerStats()
+{
+	m_Speed = START_SPEED;
+	m_Health = START_HEALTH;
+	m_MaxHealth = START_HEALTH;
 }
